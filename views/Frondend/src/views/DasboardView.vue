@@ -4,7 +4,7 @@
         <div class="profile-container">
             <img src="../assets/logo.svg" alt="img">
             <div class="profile">
-                <h3>Username</h3>
+                <h3>{{ profile.name }}</h3>
                 <div class="set">
                     <div class="change">
                         <form @submit.prevent="ChangeProfile" method="post">
@@ -12,37 +12,72 @@
                             <button type="submit">Change</button>
                         </form>
                     </div>
-                    <button>Delete img</button>
+                    <button @click="DeleteProfile">Delete img</button>
                 </div>
             </div>
         </div>
 
         <h3>users :</h3>
         <div class="card-container">
-            <div class="card">
-                <img src="../assets/logo.svg" alt="img">
-                <h3>Username</h3>
-            </div>
-            <div class="card">
-                <img src="../assets/logo.svg" alt="img">
-                <h3>Username</h3>
-            </div>
-            <div class="card">
-                <img src="../assets/logo.svg" alt="img">
-                <h3>Username</h3>
+            <div class="card" v-for="profile in profiles" :key="profile.id">
+                <img :src="'uploads/' + profile.profle_pictures" alt="img">
+                <h3>{{ profile.name }}</h3>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
 
-    methods: {
-
-        ChangeProfile() {
-            console.log('change')
+    data() {
+        return {
+            profiles: [],
+            profile: {}
         }
+    },
+
+    methods: {
+        ChangeProfile() {
+            axios.put('/profile_picture', this.profile.profile_picture)
+                .then((response) => {
+                    console.log(response.data)
+                }).catch((error) => {
+                    console.log(error.response)
+                })
+            console.log('change')
+        },
+
+        DeleteProfile() {
+            axios.delete('/profile_picture')
+                .then((response) => {
+                    console.log(response.data)
+                }).catch((error) => {
+                    console.log(error.response)
+                })
+            console.log('delete')
+        }
+    },
+
+    mounted() { 
+        axios.get('/profile')
+            .then((response) => {
+                this.profile = response.data
+                console.log(this.profile)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+
+        axios.get('/profiles')
+            .then((response) => {
+                this.profiles = response.data
+                console.log(response.data)
+        }).catch((error) => {
+            console.log(error.response)
+            console.log("errorr cuyy")
+        })
     }
 }
 </script>

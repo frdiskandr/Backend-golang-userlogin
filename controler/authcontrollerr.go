@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -99,6 +98,23 @@ func UploadProfilePicture(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "Profile picture uploaded successfully"})
 }
 
+func UpdateProfilePicture(c *gin.Context) {
+    userId := c.MustGet("userId").(uint)
+    file, err := c.FormFile("profile_picture")
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "File is required"})
+        return
+    }   
+
+    filename := fmt.Sprintf("uploads/%d%s", userId, filepath.Ext(file.Filename))
+    if err := c.SaveUploadedFile(file, filename); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Profile picture updated successfully"})
+}
+
 func DeleteProfilePicture(c *gin.Context) {
     userId := c.MustGet("userId").(uint)
 
@@ -118,4 +134,16 @@ func GetProfiles(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, users)
+}
+
+func GetProfile(c *gin.Context) {
+    userId := c.MustGet("userId").(uint)
+    var user models.User
+
+    if err := config.DB.Where("id = ?", userId).First(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, user)
 }

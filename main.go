@@ -26,7 +26,9 @@ func main() {
 
     protected := r.Group("/").Use(middleware.AuthMiddleware())
     {	
+        protected.GET("/profile", controllers.GetProfile)
         protected.POST("/profile_picture", controllers.UploadProfilePicture)
+        protected.PUT("/profile_picture", controllers.UpdateProfilePicture)
         protected.DELETE("/profile_picture", controllers.DeleteProfilePicture)
     }
 
